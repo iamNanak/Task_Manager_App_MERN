@@ -86,4 +86,4 @@ This project is licensed under the MIT License.
 
 ## Contact
 
-For any inquiries or feedback, please contact [your-iamnanak01@gmail.com].
+For any inquiries or feedback, please contact iamnanak01@gmail.com.
