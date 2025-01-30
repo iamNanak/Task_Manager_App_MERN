@@ -8,9 +8,9 @@ dotenv.config();
 
 const app = express();
 
-app.get("/", (req, res) => {
-  res.send("Server is ready!");
-});
+// app.get("/", (req, res) => {
+//   res.send("Server is ready!");
+// });
 
 // TODO: have to change the core origin
 app.use(
@@ -23,6 +23,10 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+import router from "./src/routes/user.routes.js";
+
+app.use("/api/v1", router);
 
 connectDB()
   .then(() => {
