@@ -5,7 +5,6 @@ const TaskSchema = new mongoose.Schema(
     title: {
       type: String,
       required: [true, "Please provide a title"],
-      unique: true,
     },
 
     description: {
@@ -20,8 +19,8 @@ const TaskSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["active", "inactive"],
-      default: "active",
+      enum: ["pending", "In progress", "Completed"],
+      default: "pending",
     },
 
     completed: {

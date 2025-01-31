@@ -25,8 +25,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 import router from "./src/routes/user.routes.js";
+import taskRouter from "./src/routes/task.routes.js";
 
 app.use("/api/v1", router);
+app.use("/api/v1", taskRouter);
 
 connectDB()
   .then(() => {

@@ -1,5 +1,5 @@
-import { asyncHandler } from "../../utils/asyncHandler";
-import TaskModel from "../models/tasks.model";
+import { asyncHandler } from "../../utils/asyncHandler.js";
+import TaskModel from "../models/tasks.model.js";
 
 const createTask = asyncHandler(async (req, res) => {
   try {
@@ -98,12 +98,14 @@ const updateTask = asyncHandler(async (req, res) => {
     }
 
     // update the task with the new data if provided or keep the old data
-    task.title = title || task.title;
-    task.description = description || task.description;
-    task.dueDate = dueDate || task.dueDate;
-    task.priority = priority || task.priority;
-    task.status = status || task.status;
-    task.completed = completed || task.completed;
+    Object.assign(task, {
+      title,
+      description,
+      dueDate,
+      priority,
+      status,
+      completed,
+    });
 
     await task.save();
 
@@ -163,7 +165,7 @@ const deleteAllTasks = asyncHandler(async (req, res) => {
   }
 });
 
-export default {
+export {
   createTask,
   getTask,
   getTasks,
