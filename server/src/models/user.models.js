@@ -26,7 +26,7 @@ const UserSchema = mongoose.Schema(
 
     photo: {
       type: String,
-      // default: "https://avatars.githubusercontent.com/u/19819005?v=4",
+      default: "https://avatars.githubusercontent.com/u/19819005?v=4",
     },
 
     bio: {
