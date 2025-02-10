@@ -1,19 +1,21 @@
 import jwt from "jsonwebtoken";
 import User from "../models/user.models.js";
-import { asyncHandler } from "../../utils/asyncHandler.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
 export const protect = asyncHandler(async (req, res, next) => {
   try {
     // check if user is logged in
-    const token = req.cookies.token;
+    let token = req.cookies.token || req.headers.authorization?.split(" ")[1];
 
     if (!token) {
       // 401 Unauthorized
       res.status(401).json({ message: "Not authorized, please login!" });
     }
+    // console.log(token);
 
     // verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // console.log(decoded);
 
     // get user details from the token ----> exclude password
     const user = await User.findById(decoded.id).select("-password");
@@ -25,6 +27,7 @@ export const protect = asyncHandler(async (req, res, next) => {
 
     // set user details in the request object
     req.user = user;
+    // console.log(req.user);
 
     next();
   } catch (error) {

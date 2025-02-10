@@ -1,13 +1,30 @@
-import { asyncHandler } from "../../utils/asyncHandler.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import TaskModel from "../models/tasks.model.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const createTask = asyncHandler(async (req, res) => {
   try {
+    // console.log("User in createTask: ", req.user);
+    const userId = req.user._id;
+    // console.log("userId:", userId);
     const { title, description, dueDate, status, priority } = req.body;
 
     if ([title, description].some((field) => field?.trim() === "")) {
-      res.status(400).json({ message: "Please fill all details!" });
+      return res.status(400).json({ message: "Please fill all details!" });
     }
+
+    // console.log("req.files:", req.files.image);
+    // console.log("req.body:", req.body);
+
+    const imageFile = req.files["image"] ? req.files["image"][0].path : null;
+    const pdfFile = req.files["pdf"] ? req.files["pdf"][0].path : null;
+
+    // console.log("Image Path:", imageFile);
+    // console.log("PDF Path:", pdfFile);
+
+    const image = await uploadOnCloudinary(imageFile);
+    // console.log("cloudinary link:", image);
+    const pdf = await uploadOnCloudinary(pdfFile);
 
     const task = new TaskModel({
       title,
@@ -15,8 +32,11 @@ const createTask = asyncHandler(async (req, res) => {
       dueDate,
       priority,
       status,
-      user: req.user._id,
+      image: image?.url || "",
+      pdf: pdf?.url || "",
+      user: userId,
     });
+    console.log(task);
 
     await task.save();
 

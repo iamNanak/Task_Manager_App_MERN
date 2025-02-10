@@ -4,7 +4,9 @@ import connectDB from "./src/db/connect.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
-dotenv.config();
+dotenv.config({
+  path: "./.env",
+});
 
 const app = express();
 

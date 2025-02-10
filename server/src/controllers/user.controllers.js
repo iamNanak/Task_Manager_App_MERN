@@ -1,4 +1,4 @@
-import { asyncHandler } from "../../utils/asyncHandler.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import User from "../models/user.models.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -78,6 +78,7 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 
   const token = generateToken(userExists._id);
+  console.log(token);
 
   const options = {
     path: "/",

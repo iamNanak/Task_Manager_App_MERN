@@ -5,7 +5,7 @@ const initialState = {
     {
       id: "1",
       text: "Complete Redux setup",
-      status: "pending",
+      status: "Pending",
       priority: "high",
       dueDate: "2025-02-10",
     },
@@ -20,7 +20,7 @@ export const taskSlice = createSlice({
       const task = {
         id: nanoid(),
         text: action.payload.text,
-        status: action.payload.status || "pending",
+        status: action.payload.status || "Pending",
         priority: action.payload.priority || "medium",
         dueDate: action.payload.dueDate
           ? new Date(action.payload.dueDate).toLocaleDateString()

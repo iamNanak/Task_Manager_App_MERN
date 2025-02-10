@@ -14,13 +14,13 @@ const TaskSchema = new mongoose.Schema(
 
     dueDate: {
       type: Date,
-      default: Date.now(),
+      default: Date.now,
     },
 
     status: {
       type: String,
-      enum: ["pending", "In progress", "Completed"],
-      default: "pending",
+      enum: ["Pending", "In progress", "Completed"],
+      default: "Pending",
     },
 
     completed: {
@@ -32,6 +32,14 @@ const TaskSchema = new mongoose.Schema(
       type: String,
       enum: ["low", "medium", "high"],
       default: "low",
+    },
+
+    image: {
+      type: String,
+    },
+
+    pdf: {
+      type: String,
     },
 
     user: {
