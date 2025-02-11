@@ -43,14 +43,14 @@ const TaskSchema = new mongoose.Schema(
     },
 
     user: {
-      type: mongoose.Schema.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
   },
   { timestamps: true }
 );
-
+TaskSchema.index({ user: 1, title: 1 }, { unique: true });
 const TaskModel = mongoose.model("Task", TaskSchema);
 
 export default TaskModel;

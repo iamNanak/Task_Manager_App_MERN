@@ -1,14 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { setTasks } from "../store/slice/taskSlice";
+import { useNavigate } from "react-router-dom";
+import { logout } from "../store/slice/authSlice";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const user = useSelector((state) => state.auth.createdUser);
+  const tasks = useSelector((state) => state.task.tasks);
+  console.log("tasks :", tasks);
+  const dispatch = useDispatch();
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [tasks, setTasks] = useState([]);
+  // const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState({
     title: "",
     description: "",
@@ -18,6 +25,26 @@ const Dashboard = () => {
     pdf: null,
   });
 
+  useEffect(() => {
+    const fetchTask = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        const res = await axios.get(`${BASE_URL}/api/v1/tasks`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        dispatch(setTasks(res.data));
+      } catch (error) {
+        console.log("Error in fetching the tasks: ", error);
+      }
+    };
+
+    if (user?._id) {
+      fetchTask();
+    }
+  }, [user, dispatch]);
+
   const handleChange = (e) => {
     setNewTask({ ...newTask, [e.target.name]: e.target.value });
   };
@@ -25,6 +52,17 @@ const Dashboard = () => {
   const handleFileChange = (e) => {
     const file = e.target.files[0]; // Get the selected file
     setNewTask({ ...newTask, [e.target.name]: file });
+  };
+
+  const logoutHandler = () => {
+    // Remove token from localStorage or cookies
+    localStorage.removeItem("authToken");
+
+    // Dispatch logout action
+    dispatch(logout());
+
+    // Redirect to login
+    navigate("/");
   };
 
   const handleFormSubmit = async (e) => {
@@ -73,8 +111,13 @@ const Dashboard = () => {
       console.log("response:", response);
 
       console.log("Task Created Successfully:", response.data);
-      setTasks([...tasks, response.data]); // Update task list dynamically
-      // console.log(tasks);
+      const res = await axios.get(`${BASE_URL}/api/v1/tasks`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      dispatch(setTasks(res.data));
+      console.log(tasks);
       setIsFormOpen(false); // Close modal after submission
       // Reset the form state after submission
       setNewTask({
@@ -100,23 +143,41 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gray-100 flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-gray-900 text-white p-6 flex flex-col justify-between">
+      <aside className="w-64 bg-gray-800 text-white p-6 flex flex-col justify-between ">
+        {/* Logo and Navigation */}
         <div>
-          <h2 className="text-2xl font-bold">Task Manager</h2>
-          <nav className="mt-6">
-            <Link to="/dashboard" className="block py-2 text-lg">
-              Dashboard
+          {/* Logo or App Name */}
+          <h2 className="text-2xl font-bold text-gray-100">Task Manager</h2>
+
+          {/* Navigation Links */}
+          <nav className="mt-8">
+            <Link
+              to="/"
+              className="block py-3 px-4 text-gray-300 hover:bg-gray-700 rounded-lg transition-colors duration-200"
+            >
+              Home
             </Link>
-            <Link to="/tasks" className="block py-2 text-lg">
-              My Tasks
+            <Link
+              to="/task"
+              className="block py-3 px-4 text-gray-300 hover:bg-gray-700 rounded-lg transition-colors duration-200"
+            >
+              All Tasks
             </Link>
-            <Link to="/settings" className="block py-2 text-lg">
+            <Link
+              to="/settings"
+              className="block py-3 px-4 text-gray-300 hover:bg-gray-700 rounded-lg transition-colors duration-200"
+            >
               Settings
             </Link>
           </nav>
         </div>
-        <div>
-          <button className="mt-6 w-full bg-red-500 hover:bg-red-600 py-2 rounded-lg">
+
+        {/* Logout Button */}
+        <div className="mt-auto p-4">
+          <button
+            className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg font-semibold transition-colors duration-200 z-10 relative"
+            onClick={logoutHandler}
+          >
             Logout
           </button>
         </div>
@@ -124,18 +185,48 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="flex-1 p-6">
-        <h1 className="text-3xl font-bold">Welcome Back!</h1>
-        <p className="text-gray-600">Here's an overview of your tasks.</p>
+        <div className="flex justify-between items-center p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg shadow-sm">
+          {/* Welcome Message */}
+          <div className="m-2">
+            <h1 className="text-3xl font-bold text-gray-800">
+              Welcome Back, {user.name}! 👋
+            </h1>
+            <p className="text-gray-600 mt-2">
+              Here's an overview of your tasks.
+            </p>
+          </div>
 
+          {/* Add Task Button */}
+          <div className="flex justify-center items-center">
+            <button
+              onClick={() => setIsFormOpen(true)}
+              className="bg-gradient-to-r from-green-400 to-blue-400 text-white px-8 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center"
+            >
+              <span className="mr-2">➕</span> Add New Task
+            </button>
+          </div>
+        </div>
         {/* Task Overview */}
         <div className="grid grid-cols-3 gap-6 mt-6">
           <div className="p-6 bg-white shadow-lg rounded-lg">
             <h3 className="text-xl font-semibold">Pending Tasks</h3>
-            <p className="text-gray-500">4 tasks remaining</p>
+            <p className="text-gray-500">
+              {tasks && tasks.tasks && tasks.tasks.length > 0
+                ? tasks.tasks.filter((task) => task.status == "Pending").length
+                : 0}{" "}
+              tasks remaining
+            </p>
           </div>
           <div className="p-6 bg-white shadow-lg rounded-lg">
             <h3 className="text-xl font-semibold">Completed Tasks</h3>
-            <p className="text-gray-500">10 tasks done</p>
+            <p className="text-gray-500">
+              {" "}
+              {tasks && tasks.tasks && tasks.tasks.length > 0
+                ? tasks.tasks.filter((task) => task.status == "Completed")
+                    .length
+                : 0}{" "}
+              tasks done
+            </p>
           </div>
           <div className="p-6 bg-white shadow-lg rounded-lg">
             <h3 className="text-xl font-semibold">AI Time Estimate</h3>
@@ -144,37 +235,76 @@ const Dashboard = () => {
         </div>
 
         {/* Task List */}
-        <div className="mt-6 grid grid-cols-2 gap-4">
-          {tasks.map((task) => (
-            <div key={task._id} className="bg-white p-4 shadow-md rounded-md">
-              <h3 className="font-bold text-lg">{task.title}</h3>
-              <p className="text-gray-600">{task.description}</p>
-              <p className="text-sm text-gray-500">
-                Due: {new Date(task.dueDate).toLocaleDateString()}
-              </p>
-              <p
-                className={`text-sm font-semibold mt-2 ${
-                  task.priority === "high"
-                    ? "text-red-500"
-                    : task.priority === "medium"
-                    ? "text-yellow-500"
-                    : "text-green-500"
-                }`}
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {tasks && tasks.tasks && tasks.tasks.length > 0 ? (
+            tasks.tasks.map((task) => (
+              <div
+                className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-100"
+                key={task._id}
               >
-                Priority: {task.priority}
-              </p>
-            </div>
-          ))}
-        </div>
+                {/* Task Title */}
+                <h3 className="font-bold text-xl text-gray-800 mb-2">
+                  {task.title}
+                </h3>
 
-        {/* Add Task Button */}
-        <div className="mt-6">
-          <button
-            onClick={() => setIsFormOpen(true)}
-            className="bg-green-400 text-white px-6 py-5 rounded-lg font-semibold"
-          >
-            Add new Task
-          </button>
+                {/* Task Description */}
+                <p className="text-gray-600 text-sm mb-4">{task.description}</p>
+
+                {/* Due Date */}
+                <div className="flex items-center text-sm text-gray-500 mb-4">
+                  <span className="mr-2">📅</span>
+                  <span>
+                    Due: {new Date(task.dueDate).toLocaleDateString()}
+                  </span>
+                </div>
+
+                {/* Priority */}
+                <div className="flex items-center text-sm mb-4">
+                  <span
+                    className={`inline-block w-2 h-2 rounded-full mr-2 ${
+                      task.priority === "high"
+                        ? "bg-red-500"
+                        : task.priority === "medium"
+                        ? "bg-yellow-500"
+                        : "bg-green-500"
+                    }`}
+                  ></span>
+                  <span className="font-semibold">
+                    Priority: {task.priority}
+                  </span>
+                </div>
+
+                {/* Status */}
+                <div className="flex items-center text-sm mb-4">
+                  <span
+                    className={`inline-block w-2 h-2 rounded-full mr-2 ${
+                      task.status === "Pending"
+                        ? "bg-red-500"
+                        : task.status === "In progress"
+                        ? "bg-yellow-500"
+                        : "bg-green-500"
+                    }`}
+                  ></span>
+                  <span className="font-semibold">Status: {task.status}</span>
+                </div>
+
+                {/* Image Preview */}
+                {task.image && (
+                  <div className="mt-4">
+                    <img
+                      src={task.image}
+                      alt="Task Image"
+                      className="w-full h-40 rounded-md object-cover shadow-sm"
+                    />
+                  </div>
+                )}
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-500 text-center col-span-full">
+              No tasks available.
+            </p>
+          )}
         </div>
       </main>
 

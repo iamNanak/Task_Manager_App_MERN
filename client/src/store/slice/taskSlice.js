@@ -1,15 +1,7 @@
 import { createSlice, nanoid } from "@reduxjs/toolkit";
 
 const initialState = {
-  tasks: [
-    {
-      id: "1",
-      text: "Complete Redux setup",
-      status: "Pending",
-      priority: "high",
-      dueDate: "2025-02-10",
-    },
-  ],
+  tasks: [],
 };
 
 export const taskSlice = createSlice({

@@ -72,12 +72,14 @@ const getTask = asyncHandler(async (req, res) => {
     const userId = req.user._id;
 
     const { id } = req.params;
+    console.log(req.params);
+    console.log("id:", id);
 
     if (!id) {
       res.status(400).json({ message: "Please provide a task id" });
     }
 
-    const task = await TaskModel.findById(id);
+    const task = await TaskModel.findById(userId);
 
     if (!task) {
       res.status(404).json({ message: "Task not found!" });

@@ -17,6 +17,10 @@ function Navbar() {
     // Redirect to login
     navigate("/login");
   };
+  const handleDashboard = () => {
+    // Redirect to dasboard
+    navigate("/dashboard");
+  };
 
   return (
     <nav className="bg-gray-900 text-white py-4 shadow-md border-b-0">
@@ -27,13 +31,20 @@ function Navbar() {
         <div className="flex items-center space-x-4">
           {user ? (
             <>
-              <span className="text-gray-300">{user.email}</span>
+              {/* <span className="text-gray-300">{user.photo}</span> */}
+              <button
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition"
+                onClick={handleDashboard}
+              >
+                Dashboard
+              </button>
               <button
                 className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition"
                 onClick={handleLogout}
               >
                 Logout
               </button>
+              <span className="text-gray-300">{user.name}</span>
             </>
           ) : (
             <>
