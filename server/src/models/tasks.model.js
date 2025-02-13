@@ -37,6 +37,9 @@ const TaskSchema = new mongoose.Schema(
     image: {
       type: String,
     },
+    // imagePublicId: {
+    //   type: String,
+    // },
 
     pdf: {
       type: String,

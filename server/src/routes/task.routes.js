@@ -38,6 +38,20 @@ taskRouter.post(
 taskRouter.delete("/task/:id", protect, deleteTask);
 taskRouter.get("/task/:id", protect, getTask);
 taskRouter.get("/tasks", protect, getTasks);
-taskRouter.patch("/task/:id", protect, updateTask);
+taskRouter.put(
+  "/task/:id",
+  protect,
+  upload.fields([
+    {
+      name: "image",
+      maxCount: 1,
+    },
+    {
+      name: "pdf",
+      maxCount: 1,
+    },
+  ]),
+  updateTask
+);
 
 export default taskRouter;

@@ -9,7 +9,7 @@ export const taskSlice = createSlice({
   initialState,
   reducers: {
     addTask: (state, action) => {
-      const task = {
+      const tasks = {
         id: nanoid(),
         text: action.payload.text,
         status: action.payload.status || "Pending",
@@ -18,22 +18,41 @@ export const taskSlice = createSlice({
           ? new Date(action.payload.dueDate).toLocaleDateString()
           : null,
       };
-      state.tasks.push(task);
+      state.tasks.push(tasks);
     },
 
     removeTask: (state, action) => {
-      state.tasks = state.tasks.filter((task) => task.id !== action.payload);
+      state.tasks.tasks = state.tasks.tasks.filter(
+        (task) => task._id !== action.payload
+      );
     },
 
     updateTask: (state, action) => {
-      const { id, text, status, priority, dueDate } = action.payload;
-      const task = state.tasks.find((task) => task.id === id);
+      const { id, title, description, status, priority, dueDate } =
+        action.payload;
+      const task = state.tasks.tasks.find((task) => task._id === id);
 
       if (task) {
-        task.text = text !== undefined ? text : task.text;
+        task.title = title !== undefined ? title : task.title;
+        task.description =
+          description !== undefined ? description : task.description;
         task.status = status !== undefined ? status : task.status;
         task.priority = priority !== undefined ? priority : task.priority;
         task.dueDate = dueDate !== undefined ? dueDate : task.dueDate;
+        if (typeof image !== "undefined" && image !== null) {
+          if (typeof image === "object" && image.url) {
+            task.image = image; // assuming your task.image is an object
+          } else if (typeof image === "string") {
+            task.image = { url: image };
+          }
+        }
+        if (typeof pdf !== "undefined" && pdf !== null) {
+          if (typeof pdf === "object" && pdf.url) {
+            task.pdf = pdf;
+          } else if (typeof pdf === "string") {
+            task.pdf = { url: pdf };
+          }
+        }
       }
     },
 

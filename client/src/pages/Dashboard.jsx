@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
-import { setTasks } from "../store/slice/taskSlice";
+import { setTasks, updateTask } from "../store/slice/taskSlice";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../store/slice/authSlice";
+import TaskItem from "../components/authComponents/TaskItem";
+import { MdAddBox } from "react-icons/md";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -15,7 +17,9 @@ const Dashboard = () => {
   console.log("tasks :", tasks);
   const dispatch = useDispatch();
   const [isFormOpen, setIsFormOpen] = useState(false);
-  // const [tasks, setTasks] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingTask, setIsEditingTask] = useState(null);
+
   const [newTask, setNewTask] = useState({
     title: "",
     description: "",
@@ -65,6 +69,22 @@ const Dashboard = () => {
     navigate("/");
   };
 
+  const handleEdit = (task) => {
+    setIsEditing(true);
+    setIsEditingTask(task);
+    console.log("task:", task);
+    setNewTask({
+      title: task.title,
+      description: task.description,
+      dueDate: task.dueDate || "",
+      priority: task.priority,
+      status: task.status,
+      image: task.image,
+      pdf: task.pdf,
+    });
+    setIsFormOpen(true);
+  };
+
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
@@ -72,11 +92,18 @@ const Dashboard = () => {
       // Create a FormData object to send files and text fields
 
       const token = localStorage.getItem("authToken"); // Retrieve the token from local storage
-      // console.log(token);
+      console.log(token);
       if (!token || !user) {
         alert("You are not authorized. Please log in.");
         return;
       }
+
+      console.log("newTask state before submission:", newTask);
+      if (!newTask.title || newTask.title.trim() === "") {
+        alert("Please provide a title.");
+        return;
+      }
+
       const formData = new FormData();
       formData.append("title", newTask.title);
       formData.append("description", newTask.description);
@@ -92,25 +119,53 @@ const Dashboard = () => {
       }
 
       // Debugging: Print FormData
-      // for (let pair of formData.entries()) {
-      //   console.log(`${pair[0]}:`, pair[1]);
-      // }
+      for (let pair of formData.entries()) {
+        console.log(`${pair[0]}:`, pair[1]);
+      }
+      let response;
 
-      // Send POST request to the backend
-      const response = await axios.post(
-        `${BASE_URL}/api/v1/task/create`, // Adjust URL if needed
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          },
-          withCredentials: true,
-        }
-      );
+      if (isEditing && editingTask) {
+        response = await axios.put(
+          `${BASE_URL}/api/v1/task/${editingTask._id}`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        console.log("put:", response);
+        dispatch(
+          updateTask({
+            id: editingTask._id,
+            title: newTask.title,
+            description: newTask.description,
+            status: newTask.status,
+            priority: newTask.priority,
+            dueDate: newTask.dueDate,
+            image: newTask.image,
+            pdf: newTask.pdf,
+          })
+        );
+      } else {
+        // Send POST request to the backend
+        response = await axios.post(
+          `${BASE_URL}/api/v1/task/create`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${token}`,
+            },
+            withCredentials: true,
+          }
+        );
+      }
       console.log("response:", response);
 
       console.log("Task Created Successfully:", response.data);
+
       const res = await axios.get(`${BASE_URL}/api/v1/tasks`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -120,6 +175,8 @@ const Dashboard = () => {
       console.log(tasks);
       setIsFormOpen(false); // Close modal after submission
       // Reset the form state after submission
+      setIsEditing(false);
+      setIsEditingTask(null);
       setNewTask({
         title: "",
         description: "",
@@ -130,7 +187,9 @@ const Dashboard = () => {
         pdf: null,
       });
       console.log(newTask);
-      alert("Task created successfully!");
+      alert(
+        isEditing ? "Task Updated Successfully" : "Task created successfully!"
+      );
     } catch (error) {
       console.error(
         "Error creating task:",
@@ -202,10 +261,14 @@ const Dashboard = () => {
               onClick={() => setIsFormOpen(true)}
               className="bg-gradient-to-r from-green-400 to-blue-400 text-white px-8 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center"
             >
-              <span className="mr-2">➕</span> Add New Task
+              <span className="mr-2">
+                <MdAddBox />
+              </span>{" "}
+              Add New Task
             </button>
           </div>
         </div>
+
         {/* Task Overview */}
         <div className="grid grid-cols-3 gap-6 mt-6">
           <div className="p-6 bg-white shadow-lg rounded-lg">
@@ -234,84 +297,15 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Task List */}
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {tasks && tasks.tasks && tasks.tasks.length > 0 ? (
-            tasks.tasks.map((task) => (
-              <div
-                className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-100"
-                key={task._id}
-              >
-                {/* Task Title */}
-                <h3 className="font-bold text-xl text-gray-800 mb-2">
-                  {task.title}
-                </h3>
-
-                {/* Task Description */}
-                <p className="text-gray-600 text-sm mb-4">{task.description}</p>
-
-                {/* Due Date */}
-                <div className="flex items-center text-sm text-gray-500 mb-4">
-                  <span className="mr-2">📅</span>
-                  <span>
-                    Due: {new Date(task.dueDate).toLocaleDateString()}
-                  </span>
-                </div>
-
-                {/* Priority */}
-                <div className="flex items-center text-sm mb-4">
-                  <span
-                    className={`inline-block w-2 h-2 rounded-full mr-2 ${
-                      task.priority === "high"
-                        ? "bg-red-500"
-                        : task.priority === "medium"
-                        ? "bg-yellow-500"
-                        : "bg-green-500"
-                    }`}
-                  ></span>
-                  <span className="font-semibold">
-                    Priority: {task.priority}
-                  </span>
-                </div>
-
-                {/* Status */}
-                <div className="flex items-center text-sm mb-4">
-                  <span
-                    className={`inline-block w-2 h-2 rounded-full mr-2 ${
-                      task.status === "Pending"
-                        ? "bg-red-500"
-                        : task.status === "In progress"
-                        ? "bg-yellow-500"
-                        : "bg-green-500"
-                    }`}
-                  ></span>
-                  <span className="font-semibold">Status: {task.status}</span>
-                </div>
-
-                {/* Image Preview */}
-                {task.image && (
-                  <div className="mt-4">
-                    <img
-                      src={task.image}
-                      alt="Task Image"
-                      className="w-full h-40 rounded-md object-cover shadow-sm"
-                    />
-                  </div>
-                )}
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-500 text-center col-span-full">
-              No tasks available.
-            </p>
-          )}
-        </div>
+        <TaskItem tasks={tasks} handleEdit={handleEdit} />
       </main>
 
       {isFormOpen && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h2 className="text-2xl font-bold mb-4">Create New Task</h2>
+            <h2 className="text-2xl font-bold mb-4">
+              {isEditing ? "Edit Your Task" : "Create Your Task"}
+            </h2>
             <form onSubmit={handleFormSubmit}>
               <input
                 type="text"
@@ -385,7 +379,7 @@ const Dashboard = () => {
                   type="submit"
                   className="bg-blue-600 text-white px-4 py-2 rounded"
                 >
-                  Create Task
+                  {isEditing ? "Save" : "Create"}
                 </button>
               </div>
             </form>

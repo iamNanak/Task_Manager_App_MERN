@@ -103,6 +103,7 @@ const updateTask = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { title, description, dueDate, priority, status, completed } =
       req.body;
+    // console.log("updateTask:", req.body);
 
     if (!id) {
       res.status(400).json({ message: "Please provide a task id" });
@@ -114,12 +115,25 @@ const updateTask = asyncHandler(async (req, res) => {
       res.status(404).json({ message: "Task not found!" });
     }
 
-    // check if the user is the owner of the task
     if (!task.user.equals(userId)) {
       res.status(401).json({ message: "Not authorized!" });
     }
 
-    // update the task with the new data if provided or keep the old data
+    let imageLink = task.image;
+    let pdfLink = task.pdf;
+
+    if (req.files["image"] && req.files["image"].length > 0) {
+      const imageFile = req.files["image"][0].path;
+      const imageResult = await uploadOnCloudinary(imageFile);
+      imageLink = imageResult?.url || imageResult;
+    }
+
+    if (req.files["pdf"] && req.files["pdf"].length > 0) {
+      const pdfFile = req.files["pdf"][0].path;
+      const pdfResult = await uploadOnCloudinary(pdfFile);
+      pdfLink = pdfResult?.url || pdfResult;
+    }
+
     Object.assign(task, {
       title,
       description,
@@ -127,6 +141,8 @@ const updateTask = asyncHandler(async (req, res) => {
       priority,
       status,
       completed,
+      image: imageLink,
+      pdf: pdfLink,
     });
 
     await task.save();
@@ -141,6 +157,7 @@ const updateTask = asyncHandler(async (req, res) => {
 const deleteTask = asyncHandler(async (req, res) => {
   try {
     const userId = req.user._id;
+
     const { id } = req.params;
 
     const task = await TaskModel.findById(id);
@@ -149,10 +166,13 @@ const deleteTask = asyncHandler(async (req, res) => {
       res.status(404).json({ message: "Task not found!" });
     }
 
-    // check if the user is the owner of the task
     if (!task.user.equals(userId)) {
       res.status(401).json({ message: "Not authorized!" });
     }
+
+    // if (task.imagePublicId) {
+    //   await cloudinary.uploader.destroy(task.imagePublicId);
+    // }
 
     await TaskModel.findByIdAndDelete(id);
 
