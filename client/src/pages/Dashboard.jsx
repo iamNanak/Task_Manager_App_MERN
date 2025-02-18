@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { setTasks, updateTask } from "../store/slice/taskSlice";
@@ -16,7 +16,18 @@ const Dashboard = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingTask, setIsEditingTask] = useState(null);
-  // const [isPending, setIsPending] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const formRef = useRef(null);
+
+  const [taskStatus, setTaskStatus] = useState("all");
+  // console.log("taskStatus:", taskStatus);
+  const filterTask = tasks?.tasks?.filter((task) => {
+    if (taskStatus.toLowerCase() === "all") {
+      // console.log("all tasks:", task);
+      return true;
+    }
+    return task.status.toLowerCase() === taskStatus.toLowerCase();
+  });
 
   const [newTask, setNewTask] = useState({
     title: "",
@@ -28,7 +39,24 @@ const Dashboard = () => {
   });
 
   useEffect(() => {
+    const handleClick = (e) => {
+      if (formRef.current && !formRef.current.contains(e.target)) {
+        setIsFormOpen(false);
+      }
+    };
+
+    if (isFormOpen) {
+      document.addEventListener("mousedown", handleClick);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+    };
+  }, [isFormOpen]);
+
+  useEffect(() => {
     const fetchTask = async () => {
+      setIsLoading(true);
       try {
         const token = localStorage.getItem("authToken");
         const res = await axios.get(`${BASE_URL}/api/v1/tasks`, {
@@ -40,6 +68,7 @@ const Dashboard = () => {
       } catch (error) {
         console.log("Error in fetching the tasks: ", error);
       }
+      setIsLoading(false);
     };
 
     if (user?._id) {
@@ -186,9 +215,6 @@ const Dashboard = () => {
     }
   };
 
-  // const handleViewPending = () => {
-  //   setIsPending(true);
-  // };
   return (
     <div className="min-h-screen bg-gray-100 flex">
       <Sidebar />
@@ -218,7 +244,6 @@ const Dashboard = () => {
             </button>
           </div>
         </div>
-
         {/* Task Overview */}
         <div className="grid grid-cols-3 gap-6 mt-6">
           <div className="p-6 bg-white shadow-lg rounded-lg">
@@ -229,9 +254,6 @@ const Dashboard = () => {
                 : 0}{" "}
               tasks remaining
             </p>
-            {/* <button onClick={handleViewPending} className="ml-2">
-              <FaEye size={20} className="text-blue-600 hover:text-blue-800" />
-            </button> */}
           </div>
           <div className="p-6 bg-white shadow-lg rounded-lg">
             <h3 className="text-xl font-semibold">Completed Tasks</h3>
@@ -245,21 +267,46 @@ const Dashboard = () => {
             </p>
           </div>
           <div className="p-6 bg-white shadow-lg rounded-lg">
-            <h3 className="text-xl font-semibold">AI Time Estimate</h3>
-            <p className="text-gray-500">5 hrs estimated</p>
+            <h3 className="text-xl font-semibold">In Progress</h3>
+            <p className="text-gray-500">
+              {tasks && tasks.tasks && tasks.tasks.length > 0
+                ? tasks.tasks.filter((task) => task.status === "In progress")
+                    .length
+                : 0}{" "}
+              tasks in progress
+            </p>
           </div>
         </div>
-
-        <TaskItem tasks={tasks} handleEdit={handleEdit} />
+        <div className="mt-6 flex justify-between items-center">
+          <h2 className="text-2xl font-bold text-gray-800">Your Tasks</h2>
+          <select
+            value={taskStatus}
+            onChange={(e) => setTaskStatus(e.target.value)}
+            className="bg-white border-2 border-gray-200 rounded-lg px-4 py-2 w-48 focus:outline-none focus:border-blue-500 transition-colors"
+          >
+            <option value="all">All Tasks</option>
+            <option value="Pending">Pending</option>
+            <option value="In progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
+        {isLoading ? (
+          <div className="text-center py-4">Loading tasks...</div>
+        ) : (
+          <TaskItem
+            tasks={{ ...tasks, tasks: filterTask }}
+            handleEdit={handleEdit}
+          />
+        )}
       </main>
 
       {isFormOpen && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96" ref={formRef}>
             <h2 className="text-2xl font-bold mb-4">
               {isEditing ? "Edit Your Task" : "Create Your Task"}
             </h2>
-            <form onSubmit={handleFormSubmit}>
+            <form onSubmit={handleFormSubmit} onClick>
               <input
                 type="text"
                 name="title"
