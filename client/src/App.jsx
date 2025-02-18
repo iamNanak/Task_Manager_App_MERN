@@ -1,35 +1,32 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import Navbar from "./components/Navbar";
+import Home from "./pages/Home";
 import Login from "./pages/LoginPage";
 import Register from "./pages/RegisterPage";
-import Home from "./pages/Home";
-import Dashboard from "./pages/Dashboard"; // Protected Page Examplea
+import Dashboard from "./pages/Dashboard";
 
 function App() {
-  const user = useSelector((state) => state.auth.status); // Get auth state from Redux
-  console.log(user);
+  const isAuthenticated = useSelector((state) => state.auth.status);
+
   return (
-    <>
-      {/* <Navbar /> */}
-      <div>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route
-            path="/login"
-            element={user ? <Navigate to="/" /> : <Login />}
-          />
-          <Route
-            path="/register"
-            element={user ? <Navigate to="/" /> : <Register />}
-          />
-          <Route
-            path="/dashboard"
-            element={user ? <Dashboard /> : <Navigate to="/login" />}
-          />
-        </Routes>
-      </div>
-    </>
+    <Routes>
+      <Route
+        path="/"
+        element={isAuthenticated ? <Navigate to="/dashboard" /> : <Home />}
+      />
+      <Route
+        path="/login"
+        element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login />}
+      />
+      <Route
+        path="/register"
+        element={isAuthenticated ? <Navigate to="/dashboard" /> : <Register />}
+      />
+      <Route
+        path="/dashboard"
+        element={isAuthenticated ? <Dashboard /> : <Navigate to="/" />}
+      />
+    </Routes>
   );
 }
 

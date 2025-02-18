@@ -48,7 +48,7 @@ function Login() {
 
   return (
     <>
-      <Navbar />
+      {/* <Navbar /> */}
       <div className="flex justify-center items-center min-h-screen bg-gray-100 px-4">
         <div className="max-w-md w-full bg-white shadow-xl rounded-2xl p-6 sm:p-8">
           <h2 className="text-2xl font-bold text-center text-blue-600">
@@ -93,6 +93,17 @@ function Login() {
               Login
             </button>
           </form>
+          {/* Register Redirect */}
+          <p className="text-center text-gray-600 mt-4">
+            Don't have an account?
+            <a
+              href="/register"
+              className="text-blue-600 font-semibold hover:underline"
+            >
+              {" "}
+              Register here
+            </a>
+          </p>
         </div>
       </div>
     </>

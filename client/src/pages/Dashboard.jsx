@@ -1,17 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { setTasks, updateTask } from "../store/slice/taskSlice";
-import { useNavigate } from "react-router-dom";
-import { logout } from "../store/slice/authSlice";
 import TaskItem from "../components/authComponents/TaskItem";
 import { MdAddBox } from "react-icons/md";
+import Sidebar from "../components/Sidebar";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Dashboard = () => {
-  const navigate = useNavigate();
   const user = useSelector((state) => state.auth.createdUser);
   const tasks = useSelector((state) => state.task.tasks);
   console.log("tasks :", tasks);
@@ -19,6 +16,7 @@ const Dashboard = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingTask, setIsEditingTask] = useState(null);
+  // const [isPending, setIsPending] = useState(false);
 
   const [newTask, setNewTask] = useState({
     title: "",
@@ -56,17 +54,6 @@ const Dashboard = () => {
   const handleFileChange = (e) => {
     const file = e.target.files[0]; // Get the selected file
     setNewTask({ ...newTask, [e.target.name]: file });
-  };
-
-  const logoutHandler = () => {
-    // Remove token from localStorage or cookies
-    localStorage.removeItem("authToken");
-
-    // Dispatch logout action
-    dispatch(logout());
-
-    // Redirect to login
-    navigate("/");
   };
 
   const handleEdit = (task) => {
@@ -199,51 +186,14 @@ const Dashboard = () => {
     }
   };
 
+  // const handleViewPending = () => {
+  //   setIsPending(true);
+  // };
   return (
     <div className="min-h-screen bg-gray-100 flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-gray-800 text-white p-6 flex flex-col justify-between ">
-        {/* Logo and Navigation */}
-        <div>
-          {/* Logo or App Name */}
-          <h2 className="text-2xl font-bold text-gray-100">Task Manager</h2>
-
-          {/* Navigation Links */}
-          <nav className="mt-8">
-            <Link
-              to="/"
-              className="block py-3 px-4 text-gray-300 hover:bg-gray-700 rounded-lg transition-colors duration-200"
-            >
-              Home
-            </Link>
-            <Link
-              to="/task"
-              className="block py-3 px-4 text-gray-300 hover:bg-gray-700 rounded-lg transition-colors duration-200"
-            >
-              All Tasks
-            </Link>
-            <Link
-              to="/settings"
-              className="block py-3 px-4 text-gray-300 hover:bg-gray-700 rounded-lg transition-colors duration-200"
-            >
-              Settings
-            </Link>
-          </nav>
-        </div>
-
-        {/* Logout Button */}
-        <div className="mt-auto p-4">
-          <button
-            className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg font-semibold transition-colors duration-200 z-10 relative"
-            onClick={logoutHandler}
-          >
-            Logout
-          </button>
-        </div>
-      </aside>
-
+      <Sidebar />
       {/* Main Content */}
-      <main className="flex-1 p-6">
+      <main className="flex-1 p-6 ml-64">
         <div className="flex justify-between items-center p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg shadow-sm">
           {/* Welcome Message */}
           <div className="m-2">
@@ -279,6 +229,9 @@ const Dashboard = () => {
                 : 0}{" "}
               tasks remaining
             </p>
+            {/* <button onClick={handleViewPending} className="ml-2">
+              <FaEye size={20} className="text-blue-600 hover:text-blue-800" />
+            </button> */}
           </div>
           <div className="p-6 bg-white shadow-lg rounded-lg">
             <h3 className="text-xl font-semibold">Completed Tasks</h3>

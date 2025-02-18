@@ -48,7 +48,7 @@ function Register() {
 
   return (
     <>
-      <Navbar />
+      {/* <Navbar /> */}
       <div className="flex justify-center items-center min-h-screen bg-gray-100 px-4">
         <div className="max-w-md w-full bg-white shadow-xl rounded-2xl p-6 sm:p-8">
           <h2 className="text-2xl font-bold text-center text-blue-600">
