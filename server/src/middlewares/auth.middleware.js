@@ -11,11 +11,11 @@ export const protect = asyncHandler(async (req, res, next) => {
       // 401 Unauthorized
       res.status(401).json({ message: "Not authorized, please login!" });
     }
-    // console.log(token);
+    console.log(token);
 
     // verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    // console.log(decoded);
+    console.log(decoded);
 
     // get user details from the token ----> exclude password
     const user = await User.findById(decoded.id).select("-password");
@@ -27,7 +27,7 @@ export const protect = asyncHandler(async (req, res, next) => {
 
     // set user details in the request object
     req.user = user;
-    // console.log(req.user);
+    console.log(req.user);
 
     next();
   } catch (error) {
@@ -38,32 +38,39 @@ export const protect = asyncHandler(async (req, res, next) => {
 
 // admin middleware
 export const adminMiddleware = asyncHandler(async (req, res, next) => {
-  if (req.user && req.user.role === "admin") {
-    // if user is admin, move to the next middleware/controller
-    next();
-    return;
+  console.log("🔹 Inside adminMiddleware. req.user:", req.user);
+
+  if (!req.user) {
+    console.log("🚨 req.user is undefined. User is not authenticated.");
+    return res.status(401).json({ message: "Not authorized, please login!" });
   }
-  // if not admin, send 403 Forbidden --> terminate the request
-  res.status(403).json({ message: "Only admins can do this!" });
+
+  if (!req.user.isAdmin) {
+    console.log("🚨 User is not an admin:", req.user);
+    return res.status(403).json({ message: "Only admins can do this!" });
+  }
+
+  console.log("✅ User is admin, proceeding...");
+  next();
 });
 
-export const creatorMiddleware = asyncHandler(async (req, res, next) => {
-  if (req.user && req.user.role === "admin") {
-    // if user is creator, move to the next middleware/controller
-    next();
-    return;
-  }
-  // if not creator, send 403 Forbidden --> terminate the request
-  res.status(403).json({ message: "Only creators can do this!" });
-});
+// export const creatorMiddleware = asyncHandler(async (req, res, next) => {
+//   if (req.user && req.user.role === "admin") {
+//     // if user is creator, move to the next middleware/controller
+//     next();
+//     return;
+//   }
+//   // if not creator, send 403 Forbidden --> terminate the request
+//   res.status(403).json({ message: "Only creators can do this!" });
+// });
 
-// verified middleware
-export const verifiedMiddleware = asyncHandler(async (req, res, next) => {
-  if (req.user && req.user.isVerified) {
-    // if user is verified, move to the next middleware/controller
-    next();
-    return;
-  }
-  // if not verified, send 403 Forbidden --> terminate the request
-  res.status(403).json({ message: "Please verify your email address!" });
-});
+// // verified middleware
+// export const verifiedMiddleware = asyncHandler(async (req, res, next) => {
+//   if (req.user && req.user.isVerified) {
+//     // if user is verified, move to the next middleware/controller
+//     next();
+//     return;
+//   }
+//   // if not verified, send 403 Forbidden --> terminate the request
+//   res.status(403).json({ message: "Please verify your email address!" });
+// });

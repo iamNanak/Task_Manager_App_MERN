@@ -28,9 +28,11 @@ app.use(cookieParser());
 
 import router from "./src/routes/user.routes.js";
 import taskRouter from "./src/routes/task.routes.js";
+import adminRouter from "./src/routes/admin.routes.js";
 
 app.use("/api/v1", router);
 app.use("/api/v1", taskRouter);
+app.use("/api/v1/admin", adminRouter);
 
 connectDB()
   .then(() => {

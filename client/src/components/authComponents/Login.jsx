@@ -28,7 +28,10 @@ function Login() {
     setError("");
 
     try {
-      const response = await axios.post(`${BASE_URL}/api/v1/login`, formData);
+      const response = await axios.post(`${BASE_URL}/api/v1/login`, formData, {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
+      });
       console.log(response);
       // Extract data
       const { token, verifiedUser } = response.data;

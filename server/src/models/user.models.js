@@ -34,10 +34,9 @@ const UserSchema = mongoose.Schema(
       default: "I am a new user.",
     },
 
-    role: {
-      type: String,
-      enum: ["user", "admin"],
-      default: "user",
+    isAdmin: {
+      type: Boolean,
+      default: false,
     },
 
     isVerified: {

@@ -14,11 +14,13 @@ export const taskSlice = createSlice({
         text: action.payload.text,
         status: action.payload.status || "Pending",
         priority: action.payload.priority || "medium",
+        image: action.payload.image || null,
+        pdf: action.payload.pdf || null,
         dueDate: action.payload.dueDate
           ? new Date(action.payload.dueDate).toLocaleDateString()
           : null,
       };
-      state.tasks.push(tasks);
+      state.tasks.tasks.push(tasks);
     },
 
     removeTask: (state, action) => {

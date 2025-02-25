@@ -18,9 +18,11 @@ const deleteUser = asyncHandler(async (req, res) => {
 
 const getAllUsers = asyncHandler(async (req, res) => {
   try {
-    const users = await User.find({});
+    const users = await User.find({}).select("-password");
+    console.log("admin Controller:", users);
 
-    if (!users) return res.status(404).json({ message: "No users found" });
+    if (users.length === 0)
+      return res.status(404).json({ message: "No users found" });
 
     return res.status(200).json(users);
   } catch (error) {
@@ -29,4 +31,4 @@ const getAllUsers = asyncHandler(async (req, res) => {
   }
 });
 
-export default { deleteUser, getAllUsers };
+export { deleteUser, getAllUsers };

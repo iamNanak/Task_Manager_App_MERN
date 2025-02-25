@@ -4,19 +4,18 @@ import Home from "./pages/Home";
 import Login from "./pages/LoginPage";
 import Register from "./pages/RegisterPage";
 import Dashboard from "./pages/Dashboard";
+import AdminRoute from "./components/authComponents/AdminRoute";
+import AdminPanel from "./components/AdminPanel";
 
 function App() {
   const isAuthenticated = useSelector((state) => state.auth.status);
 
   return (
     <Routes>
-      <Route
-        path="/"
-        element={isAuthenticated ? <Navigate to="/dashboard" /> : <Home />}
-      />
+      <Route path="/" element={<Home />} />
       <Route
         path="/login"
-        element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login />}
+        element={isAuthenticated ? <Navigate to="/" /> : <Login />}
       />
       <Route
         path="/register"
@@ -25,6 +24,14 @@ function App() {
       <Route
         path="/dashboard"
         element={isAuthenticated ? <Dashboard /> : <Navigate to="/" />}
+      />
+      <Route
+        path="/admin"
+        element={
+          <AdminRoute>
+            <AdminPanel />
+          </AdminRoute>
+        }
       />
     </Routes>
   );

@@ -57,6 +57,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
+  // console.log(req.body);
 
   if (!email || !password) {
     return res.status(400).json({ message: "All fields are required" });
@@ -64,6 +65,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
   // check if user exists
   const userExists = await User.findOne({ email });
+  // console.log(userExists);
 
   if (!userExists) {
     return res.status(404).json({ message: "User not found, sign up!" });

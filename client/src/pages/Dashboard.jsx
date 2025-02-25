@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
-import { setTasks, updateTask } from "../store/slice/taskSlice";
+import { addTask, setTasks, updateTask } from "../store/slice/taskSlice";
 import TaskItem from "../components/authComponents/TaskItem";
 import { MdAddBox } from "react-icons/md";
 import Sidebar from "../components/Sidebar";
@@ -40,9 +40,8 @@ const Dashboard = () => {
 
   useEffect(() => {
     const handleClick = (e) => {
-      if (formRef.current && !formRef.current.contains(e.target)) {
-        setIsFormOpen(false);
-      }
+      if (formRef.current?.contains(e.target)) return;
+      setIsFormOpen(false);
     };
 
     if (isFormOpen) {
@@ -135,9 +134,10 @@ const Dashboard = () => {
       }
 
       // Debugging: Print FormData
-      for (let pair of formData.entries()) {
-        console.log(`${pair[0]}:`, pair[1]);
-      }
+      // for (let pair of formData.entries()) {
+      //   console.log(`${pair[0]}:`, pair[1]);
+      // }
+
       let response;
 
       if (isEditing && editingTask) {
@@ -187,7 +187,7 @@ const Dashboard = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      dispatch(setTasks(res.data));
+      dispatch(addTask(res.data));
       console.log(tasks);
       setIsFormOpen(false); // Close modal after submission
       // Reset the form state after submission
