@@ -38,8 +38,6 @@ export const protect = asyncHandler(async (req, res, next) => {
 
 // admin middleware
 export const adminMiddleware = asyncHandler(async (req, res, next) => {
-  console.log("🔹 Inside adminMiddleware. req.user:", req.user);
-
   if (!req.user) {
     console.log("🚨 req.user is undefined. User is not authenticated.");
     return res.status(401).json({ message: "Not authorized, please login!" });

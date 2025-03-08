@@ -31,4 +31,22 @@ const getAllUsers = asyncHandler(async (req, res) => {
   }
 });
 
-export { deleteUser, getAllUsers };
+const adminControl = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findById(id);
+
+    if (user) {
+      user.isAdmin = Boolean(req.body.isAdmin);
+
+      const updatedUser = await user.save();
+
+      return res.status(200).json(updatedUser);
+    }
+  } catch {
+    res.status(400).json({ message: "Can't update the user" });
+  }
+});
+
+export { deleteUser, getAllUsers, adminControl };

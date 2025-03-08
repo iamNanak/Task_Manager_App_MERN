@@ -1,7 +1,8 @@
-import { createSlice, nanoid } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   tasks: [],
+  length: 0,
 };
 
 export const taskSlice = createSlice({
@@ -9,57 +10,31 @@ export const taskSlice = createSlice({
   initialState,
   reducers: {
     addTask: (state, action) => {
-      const tasks = {
-        id: nanoid(),
-        text: action.payload.text,
-        status: action.payload.status || "Pending",
-        priority: action.payload.priority || "medium",
-        image: action.payload.image || null,
-        pdf: action.payload.pdf || null,
-        dueDate: action.payload.dueDate
-          ? new Date(action.payload.dueDate).toLocaleDateString()
-          : null,
-      };
-      state.tasks.tasks.push(tasks);
+      state.tasks.push(action.payload);
+      state.length += 1;
     },
 
     removeTask: (state, action) => {
-      state.tasks.tasks = state.tasks.tasks.filter(
-        (task) => task._id !== action.payload
-      );
+      state.tasks = state.tasks.filter((task) => task._id !== action.payload);
+      state.length = state.tasks.length;
     },
 
     updateTask: (state, action) => {
-      const { id, title, description, status, priority, dueDate } =
-        action.payload;
-      const task = state.tasks.tasks.find((task) => task._id === id);
-
-      if (task) {
-        task.title = title !== undefined ? title : task.title;
-        task.description =
-          description !== undefined ? description : task.description;
-        task.status = status !== undefined ? status : task.status;
-        task.priority = priority !== undefined ? priority : task.priority;
-        task.dueDate = dueDate !== undefined ? dueDate : task.dueDate;
-        if (typeof image !== "undefined" && image !== null) {
-          if (typeof image === "object" && image.url) {
-            task.image = image; // assuming your task.image is an object
-          } else if (typeof image === "string") {
-            task.image = { url: image };
-          }
-        }
-        if (typeof pdf !== "undefined" && pdf !== null) {
-          if (typeof pdf === "object" && pdf.url) {
-            task.pdf = pdf;
-          } else if (typeof pdf === "string") {
-            task.pdf = { url: pdf };
-          }
-        }
+      const index = state.tasks.findIndex(
+        (task) => task._id === action.payload._id
+      );
+      if (index !== -1) {
+        // Preserve existing fields while updating
+        state.tasks[index] = {
+          ...state.tasks[index],
+          ...action.payload,
+        };
       }
     },
 
     setTasks: (state, action) => {
-      state.tasks = action.payload; // Replace all tasks (useful for fetching from backend)
+      state.tasks = action.payload.tasks; // Replace all tasks (useful for fetching from backend)
+      state.length = action.payload.length;
     },
   },
 });

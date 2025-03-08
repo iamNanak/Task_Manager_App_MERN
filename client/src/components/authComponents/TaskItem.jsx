@@ -6,6 +6,7 @@ import axios from "axios";
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const TaskItem = ({ tasks, handleEdit }) => {
+  // console.log("Tasks:", tasks);
   const dispatch = useDispatch();
 
   const handleDelete = async (taskId) => {
@@ -24,13 +25,22 @@ const TaskItem = ({ tasks, handleEdit }) => {
 
   return (
     <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {tasks && tasks.tasks && tasks.tasks.length > 0 ? (
+      {tasks ? (
         tasks.tasks.map((task) => (
+          // console.log("Task ID:", task._id),
           <div
-            key={task._id}
             className="group relative duration-500 hover:-translate-y-2"
+            key={task._id}
           >
-            <div className="relative bg-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100">
+            <div
+              className={`relative rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100 ${
+                task.priority === "high"
+                  ? "bg-red-300"
+                  : task.priority === "medium"
+                  ? "bg-yellow-300"
+                  : "bg-green-300"
+              }`}
+            >
               <div className="absolute top-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                 <button
                   onClick={() => handleEdit(task)}
@@ -46,29 +56,29 @@ const TaskItem = ({ tasks, handleEdit }) => {
                 </button>
               </div>
 
-              <h3 className="text-2xl font-bold text-gray-800 mb-3 group-hover:text-primary transition-colors duration-200">
+              <h3 className="text-2xl text-center font-bold text-gray-800 mb-3 group-hover:text-primary transition-colors duration-200">
                 {task.title}
               </h3>
 
-              <p className="text-gray-700 text-sm mb-4 line-clamp-2">
+              <p className="text-gray-900 font-semibold text-sm mb-4 line-clamp-2">
                 {task.description}
               </p>
 
-              <div className="flex items-center text-sm text-gray-500 mb-4 bg-gray-50 p-2 rounded-md">
+              <div className="flex items-center text-sm text-black mb-4  p-2 rounded-md">
                 <span className="mr-2">📅</span>
                 <span className="font-medium">
-                  {new Date(task.dueDate).toLocaleDateString()}
+                  {new Date(task.dueDate).toISOString().split("T")[0]}
                 </span>
               </div>
 
               <div className="flex items-center text-sm mb-4">
                 <span
-                  className={`inline-block w-2 h-2 rounded-full mr-2 transition-colors duration-200 ${
+                  className={`inline-block w-3 h-3 rounded-full border-black mr-2 transition-colors duration-200 ${
                     task.priority === "high"
-                      ? "bg-red-500"
+                      ? "bg-red-700"
                       : task.priority === "medium"
-                      ? "bg-yellow-500"
-                      : "bg-green-500"
+                      ? "bg-yellow-700"
+                      : "bg-green-700"
                   }`}
                 />
                 <span className="font-medium capitalize">
@@ -79,7 +89,7 @@ const TaskItem = ({ tasks, handleEdit }) => {
               {/* Status Badge */}
               <div className="flex items-center text-sm mb-4">
                 <span
-                  className={`inline-block w-2 h-2 rounded-full mr-2 transition-colors duration-200 ${
+                  className={`inline-block w-3 h-3 border-black rounded-full mr-2 transition-colors duration-200 ${
                     task.status === "Pending"
                       ? "bg-red-500"
                       : task.status === "In progress"
@@ -91,7 +101,7 @@ const TaskItem = ({ tasks, handleEdit }) => {
               </div>
 
               {task.image && (
-                <div className="mt-4 rounded-md overflow-hidden bg-gray-50 p-1">
+                <div className="mt-4 rounded-md overflow-hidden bg-gray-50">
                   <img
                     src={task.image}
                     alt="Task Image"

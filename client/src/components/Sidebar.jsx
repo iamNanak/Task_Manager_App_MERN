@@ -20,7 +20,7 @@ const Sidebar = () => {
   return (
     <>
       {/* Sidebar */}
-      <aside className="fixed top-0 left-0 h-full w-64 bg-gray-800 text-white p-6 flex flex-col justify-between">
+      <aside className="fixed left-0 h-full w-64 bg-gray-800 text-white p-6 flex flex-col justify-between">
         {/* Logo and Navigation */}
         <div>
           {/* Logo or App Name */}

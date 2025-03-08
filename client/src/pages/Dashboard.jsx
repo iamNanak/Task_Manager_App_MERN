@@ -10,8 +10,8 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Dashboard = () => {
   const user = useSelector((state) => state.auth.createdUser);
-  const tasks = useSelector((state) => state.task.tasks);
-  console.log("tasks :", tasks);
+  const { tasks: taskList, length } = useSelector((state) => state.task);
+  console.log("tasks :", taskList);
   const dispatch = useDispatch();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -20,10 +20,9 @@ const Dashboard = () => {
   const formRef = useRef(null);
 
   const [taskStatus, setTaskStatus] = useState("all");
-  // console.log("taskStatus:", taskStatus);
-  const filterTask = tasks?.tasks?.filter((task) => {
+
+  const filterTask = taskList?.filter((task) => {
     if (taskStatus.toLowerCase() === "all") {
-      // console.log("all tasks:", task);
       return true;
     }
     return task.status.toLowerCase() === taskStatus.toLowerCase();
@@ -87,7 +86,7 @@ const Dashboard = () => {
   const handleEdit = (task) => {
     setIsEditing(true);
     setIsEditingTask(task);
-    console.log("task:", task);
+    console.log("task edit:", task);
     setNewTask({
       title: task.title,
       description: task.description,
@@ -104,10 +103,8 @@ const Dashboard = () => {
     e.preventDefault();
 
     try {
-      // Create a FormData object to send files and text fields
-
       const token = localStorage.getItem("authToken"); // Retrieve the token from local storage
-      console.log(token);
+      // console.log(token);
       if (!token || !user) {
         alert("You are not authorized. Please log in.");
         return;
@@ -133,11 +130,6 @@ const Dashboard = () => {
         formData.append("pdf", newTask.pdf);
       }
 
-      // Debugging: Print FormData
-      // for (let pair of formData.entries()) {
-      //   console.log(`${pair[0]}:`, pair[1]);
-      // }
-
       let response;
 
       if (isEditing && editingTask) {
@@ -152,18 +144,7 @@ const Dashboard = () => {
           }
         );
         console.log("put:", response);
-        dispatch(
-          updateTask({
-            id: editingTask._id,
-            title: newTask.title,
-            description: newTask.description,
-            status: newTask.status,
-            priority: newTask.priority,
-            dueDate: newTask.dueDate,
-            image: newTask.image,
-            pdf: newTask.pdf,
-          })
-        );
+        dispatch(updateTask({ _id: editingTask._id, ...response.data }));
       } else {
         // Send POST request to the backend
         response = await axios.post(
@@ -177,22 +158,16 @@ const Dashboard = () => {
             withCredentials: true,
           }
         );
+        dispatch(addTask(response.data));
       }
       console.log("response:", response);
 
       console.log("Task Created Successfully:", response.data);
-
-      const res = await axios.get(`${BASE_URL}/api/v1/tasks`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      dispatch(addTask(res.data));
-      console.log(tasks);
       setIsFormOpen(false); // Close modal after submission
-      // Reset the form state after submission
+
       setIsEditing(false);
       setIsEditingTask(null);
+
       setNewTask({
         title: "",
         description: "",
@@ -246,33 +221,27 @@ const Dashboard = () => {
         </div>
         {/* Task Overview */}
         <div className="grid grid-cols-3 gap-6 mt-6">
-          <div className="p-6 bg-white shadow-lg rounded-lg">
+          <div className="p-6 bg-blue-500 shadow-lg rounded-lg">
             <h3 className="text-xl font-semibold">Pending Tasks</h3>
-            <p className="text-gray-500">
-              {tasks && tasks.tasks && tasks.tasks.length > 0
-                ? tasks.tasks.filter((task) => task.status == "Pending").length
-                : 0}{" "}
+            <p className="text-white">
+              {taskList?.filter((task) => task.status == "Pending").length || 0}{" "}
               tasks remaining
             </p>
           </div>
-          <div className="p-6 bg-white shadow-lg rounded-lg">
+          <div className="p-6 bg-green-500 shadow-lg rounded-lg">
             <h3 className="text-xl font-semibold">Completed Tasks</h3>
-            <p className="text-gray-500">
+            <p className="text-white">
               {" "}
-              {tasks && tasks.tasks && tasks.tasks.length > 0
-                ? tasks.tasks.filter((task) => task.status == "Completed")
-                    .length
-                : 0}{" "}
+              {taskList?.filter((task) => task.status == "Completed").length ||
+                0}{" "}
               tasks done
             </p>
           </div>
-          <div className="p-6 bg-white shadow-lg rounded-lg">
+          <div className="p-6 bg-orange-500 shadow-lg rounded-lg">
             <h3 className="text-xl font-semibold">In Progress</h3>
-            <p className="text-gray-500">
-              {tasks && tasks.tasks && tasks.tasks.length > 0
-                ? tasks.tasks.filter((task) => task.status === "In progress")
-                    .length
-                : 0}{" "}
+            <p className="text-white">
+              {taskList?.filter((task) => task.status === "In progress")
+                .length || 0}{" "}
               tasks in progress
             </p>
           </div>
@@ -293,10 +262,7 @@ const Dashboard = () => {
         {isLoading ? (
           <div className="text-center py-4">Loading tasks...</div>
         ) : (
-          <TaskItem
-            tasks={{ ...tasks, tasks: filterTask }}
-            handleEdit={handleEdit}
-          />
+          <TaskItem tasks={{ tasks: filterTask }} handleEdit={handleEdit} />
         )}
       </main>
 
@@ -306,7 +272,7 @@ const Dashboard = () => {
             <h2 className="text-2xl font-bold mb-4">
               {isEditing ? "Edit Your Task" : "Create Your Task"}
             </h2>
-            <form onSubmit={handleFormSubmit} onClick>
+            <form onSubmit={handleFormSubmit}>
               <input
                 type="text"
                 name="title"

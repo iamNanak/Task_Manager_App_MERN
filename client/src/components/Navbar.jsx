@@ -47,6 +47,14 @@ function Navbar() {
           </Link>
         </div>
         <div className="flex items-center space-x-4">
+          {user?.isAdmin && (
+            <Link
+              to="/admin"
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition"
+            >
+              Admin Panel
+            </Link>
+          )}
           {user ? (
             <>
               {/* Dashboard and Logout buttons */}
@@ -84,15 +92,6 @@ function Navbar() {
                   </div>
                 )}
               </div>
-
-              {user?.isAdmin && (
-                <Link
-                  to="/admin"
-                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition"
-                >
-                  Admin Panel
-                </Link>
-              )}
             </>
           ) : (
             <>
