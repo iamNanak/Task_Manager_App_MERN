@@ -10,8 +10,9 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Dashboard = () => {
   const user = useSelector((state) => state.auth.createdUser);
+  // console.log("user dashboeard:", user);
   const { tasks: taskList, length } = useSelector((state) => state.task);
-  console.log("tasks :", taskList);
+  // console.log("tasks :", taskList);
   const dispatch = useDispatch();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -86,7 +87,7 @@ const Dashboard = () => {
   const handleEdit = (task) => {
     setIsEditing(true);
     setIsEditingTask(task);
-    console.log("task edit:", task);
+    // console.log("task edit:", task);
     setNewTask({
       title: task.title,
       description: task.description,
@@ -110,7 +111,7 @@ const Dashboard = () => {
         return;
       }
 
-      console.log("newTask state before submission:", newTask);
+      // console.log("newTask state before submission:", newTask);
       if (!newTask.title || newTask.title.trim() === "") {
         alert("Please provide a title.");
         return;

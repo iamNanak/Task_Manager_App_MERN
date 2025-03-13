@@ -4,7 +4,7 @@ import { Navigate } from "react-router-dom";
 
 const AdminRoute = ({ children }) => {
   const user = useSelector((state) => state.auth.createdUser);
-  console.log("Admin ROute", user);
+  // console.log("Admin ROute", user);
 
   if (!user) {
     return <Navigate to="/login" replace />; // Redirect unauthenticated users to login

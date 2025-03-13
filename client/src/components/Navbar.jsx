@@ -7,7 +7,7 @@ function Navbar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((state) => state.auth.createdUser);
-  console.log(user);
+  // console.log(user);
 
   const [isDropDown, setIsDropDown] = useState(false);
 

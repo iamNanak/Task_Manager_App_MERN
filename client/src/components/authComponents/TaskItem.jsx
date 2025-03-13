@@ -7,6 +7,7 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const TaskItem = ({ tasks, handleEdit }) => {
   // console.log("Tasks:", tasks);
+  // console.log("Tasks inside: ", typeof tasks.tasks.length);
   const dispatch = useDispatch();
 
   const handleDelete = async (taskId) => {
@@ -25,7 +26,7 @@ const TaskItem = ({ tasks, handleEdit }) => {
 
   return (
     <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {tasks ? (
+      {tasks && tasks.tasks.length > 0 ? (
         tasks.tasks.map((task) => (
           // console.log("Task ID:", task._id),
           <div

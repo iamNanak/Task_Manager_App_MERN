@@ -8,18 +8,18 @@ const AdminPanel = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  console.log("all users", users);
+  // console.log("all users", users);
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        console.log("Token from admin", token);
+        // console.log("Token from admin", token);
         const response = await axios.get(`${BASE_URL}/api/v1/admin/allUsers`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        console.log("response", response.data);
+        // console.log("response", response.data);
         setUsers(response.data);
       } catch (error) {
         console.error("Error fetching users:", error);
@@ -66,6 +66,8 @@ const AdminPanel = () => {
       console.error("Error updating user:", error);
     }
   };
+
+  const handleAdminTask = async (userId, isAdmin) => {};
 
   if (loading) return <div>Loading...</div>;
 
@@ -115,9 +117,15 @@ const AdminPanel = () => {
                         onClick={() =>
                           handleAdminControl(user._id, user.isAdmin)
                         }
-                        className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+                        className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 m-2"
                       >
                         {user.isAdmin ? "Remove Admin" : "Make Admin"}
+                      </button>
+                      <button
+                        onClick={() => handleAdminTask(user._id, user.isAdmin)}
+                        className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 m-2"
+                      >
+                        Assign Task
                       </button>
                     </div>
                   </td>

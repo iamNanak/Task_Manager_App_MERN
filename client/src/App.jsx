@@ -6,6 +6,8 @@ import Register from "./pages/RegisterPage";
 import Dashboard from "./pages/Dashboard";
 import AdminRoute from "./components/authComponents/AdminRoute";
 import AdminPanel from "./components/AdminPanel";
+import GoogleLogin from "./pages/GoogleLogin";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 function App() {
   const isAuthenticated = useSelector((state) => state.auth.status);
@@ -13,6 +15,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/google" element={<GoogleLogin />} />
       <Route
         path="/login"
         element={isAuthenticated ? <Navigate to="/" /> : <Login />}

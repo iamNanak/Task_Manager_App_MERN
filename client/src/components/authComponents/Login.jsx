@@ -3,7 +3,8 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { login } from "../../store/slice/authSlice.js";
-import Navbar from "../Navbar.jsx";
+import GoogleLogin from "../../pages/GoogleLogin.jsx";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -32,26 +33,31 @@ function Login() {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       });
-      console.log(response);
-      // Extract data
+      // console.log(response);
+
       const { token, verifiedUser } = response.data;
-      console.log(verifiedUser);
-      // Store token in localStorage
+      // console.log(verifiedUser);
+
       localStorage.setItem("authToken", token);
 
-      // Dispatch login action to Redux store
       dispatch(login({ verifiedUser }));
 
-      // Redirect user to home page
       navigate("/");
     } catch (error) {
       setError(error.response?.data?.message || "Login failed");
     }
   };
 
+  const GoogleAuthWrapper = () => {
+    return (
+      <GoogleOAuthProvider clientId="777002517823-ks1pt96fh603dnqd55b0smui81mu3ta1.apps.googleusercontent.com">
+        <GoogleLogin />
+      </GoogleOAuthProvider>
+    );
+  };
+
   return (
     <>
-      {/* <Navbar /> */}
       <div className="flex justify-center items-center min-h-screen bg-gray-100 px-4">
         <div className="max-w-md w-full bg-white shadow-xl rounded-2xl p-6 sm:p-8">
           <h2 className="text-2xl font-bold text-center text-blue-600">
@@ -107,6 +113,10 @@ function Login() {
               Register here
             </a>
           </p>
+          <br />
+          <hr className="font-extrabold" />
+          <br />
+          <GoogleAuthWrapper />
         </div>
       </div>
     </>

@@ -2,6 +2,9 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import User from "../models/user.models.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import oauth2Client from "../utils/googleConfig.js";
+import axios from "axios";
+import crypto from "crypto";
 
 //use user id to generate token
 const generateToken = (id) => {
@@ -125,4 +128,43 @@ const getUser = asyncHandler(async (req, res) => {
   return res.status(200).json(user);
 });
 
-export { registerUser, loginUser, logoutUser, getUser };
+const googleLogin = asyncHandler(async (req, res) => {
+  try {
+    const code = req.query.code;
+    const googleRes = await oauth2Client.getToken(code);
+    oauth2Client.setCredentials(googleRes.tokens);
+
+    const userRes = await axios.get(
+      `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`
+    );
+    const { name, email, password } = userRes.data;
+    console.log("name, email, password: ", name, email, password);
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      const randomPassword = crypto.randomBytes(16).toString("hex");
+      user = await User.create({
+        name,
+        email,
+        password: randomPassword,
+      });
+    }
+
+    const token = generateToken(user._id);
+    console.log("google auth token:", token);
+    console.log("user:", user);
+    return res.status(200).json({
+      message: "Success",
+      token,
+      user,
+    });
+  } catch (error) {
+    console.log("google auth error: ", error);
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+});
+
+export { registerUser, loginUser, logoutUser, getUser, googleLogin };
