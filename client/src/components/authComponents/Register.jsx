@@ -36,8 +36,10 @@ function Register() {
         formData
       );
       console.log(response);
-
-      dispatch(login({ user: response.data.createdUser })); // Updating Redux store
+      console.log(response.data.createdUser);
+      const { token } = response.data;
+      localStorage.setItem("authToken", token);
+      dispatch(login({ verifiedUser: response.data.createdUser })); // Updating Redux store
       navigate("/"); // Redirect to home page
     } catch (error) {
       setError(error.response?.data?.message || "Registration failed!");

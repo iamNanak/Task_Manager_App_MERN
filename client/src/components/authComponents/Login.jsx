@@ -33,10 +33,10 @@ function Login() {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       });
-      // console.log(response);
+      console.log(response);
 
       const { token, verifiedUser } = response.data;
-      // console.log(verifiedUser);
+      console.log(verifiedUser);
 
       localStorage.setItem("authToken", token);
 

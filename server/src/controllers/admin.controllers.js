@@ -19,7 +19,7 @@ const deleteUser = asyncHandler(async (req, res) => {
 const getAllUsers = asyncHandler(async (req, res) => {
   try {
     const users = await User.find({}).select("-password");
-    console.log("admin Controller:", users);
+    // console.log("admin Controller:", users);
 
     if (users.length === 0)
       return res.status(404).json({ message: "No users found" });
@@ -36,6 +36,12 @@ const adminControl = asyncHandler(async (req, res) => {
 
   try {
     const user = await User.findById(id);
+
+    if (user._id === id) {
+      return res
+        .status(403)
+        .json({ message: "You can't remove admin control" });
+    }
 
     if (user) {
       user.isAdmin = Boolean(req.body.isAdmin);

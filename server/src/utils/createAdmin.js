@@ -4,9 +4,9 @@ import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 
 dotenv.config({
-  path: "./.env",
+  path: "../../.env",
 });
-
+console.log(process.env.MONGODB_URI);
 export const createAdmin = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI);

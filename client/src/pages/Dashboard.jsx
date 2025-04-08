@@ -10,9 +10,9 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Dashboard = () => {
   const user = useSelector((state) => state.auth.createdUser);
-  // console.log("user dashboeard:", user);
+  console.log("user dashboeard:", user);
   const { tasks: taskList, length } = useSelector((state) => state.task);
-  // console.log("tasks :", taskList);
+  console.log("tasks :", taskList);
   const dispatch = useDispatch();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -161,9 +161,9 @@ const Dashboard = () => {
         );
         dispatch(addTask(response.data));
       }
-      console.log("response:", response);
+      // console.log("response:", response);
 
-      console.log("Task Created Successfully:", response.data);
+      // console.log("Task Created Successfully:", response.data);
       setIsFormOpen(false); // Close modal after submission
 
       setIsEditing(false);
@@ -178,7 +178,7 @@ const Dashboard = () => {
         image: null,
         pdf: null,
       });
-      console.log(newTask);
+      // console.log(newTask);
       alert(
         isEditing ? "Task Updated Successfully" : "Task created successfully!"
       );

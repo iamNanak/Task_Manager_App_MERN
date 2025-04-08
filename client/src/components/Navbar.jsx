@@ -6,8 +6,8 @@ import { useState } from "react";
 function Navbar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const user = useSelector((state) => state.auth.createdUser);
-  // console.log(user);
+  const verifiedUser = useSelector((state) => state.auth.createdUser);
+  console.log(verifiedUser);
 
   const [isDropDown, setIsDropDown] = useState(false);
 
@@ -47,7 +47,7 @@ function Navbar() {
           </Link>
         </div>
         <div className="flex items-center space-x-4">
-          {user?.isAdmin && (
+          {verifiedUser?.isAdmin && (
             <Link
               to="/admin"
               className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition"
@@ -55,7 +55,7 @@ function Navbar() {
               Admin Panel
             </Link>
           )}
-          {user ? (
+          {verifiedUser ? (
             <>
               {/* Dashboard and Logout buttons */}
               <button
@@ -72,9 +72,9 @@ function Navbar() {
                 >
                   {/* Avatar with the first letter of the user's name */}
                   <div className="w-10 h-10 flex items-center justify-center bg-blue-600 rounded-full text-white font-bold">
-                    {user.name.charAt(0).toUpperCase()}
+                    {verifiedUser.name.charAt(0).toUpperCase()}
                   </div>
-                  <span className="text-gray-800">{user.name}</span>
+                  <span className="text-gray-800">{verifiedUser.name}</span>
                 </div>
 
                 {/* Dropdown Menu */}

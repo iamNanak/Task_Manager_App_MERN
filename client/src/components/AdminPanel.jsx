@@ -47,6 +47,10 @@ const AdminPanel = () => {
   const handleAdminControl = async (userId, isAdmin) => {
     try {
       const token = localStorage.getItem("authToken");
+      // if (userId == req.body.user._id) {
+      //   console.log("You can't do this action.");
+      //   return;
+      // }
       await axios.put(
         `${BASE_URL}/api/v1/admin/adminControl/${userId}`,
         {

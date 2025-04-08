@@ -11,13 +11,12 @@ export const protect = asyncHandler(async (req, res, next) => {
       // 401 Unauthorized
       res.status(401).json({ message: "Not authorized, please login!" });
     }
-    console.log(token);
+    // console.log(token);
 
     // verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(decoded);
+    console.log("decoded :", decoded.id);
 
-    // get user details from the token ----> exclude password
     const user = await User.findById(decoded.id).select("-password");
 
     // check if user exists
@@ -27,7 +26,7 @@ export const protect = asyncHandler(async (req, res, next) => {
 
     // set user details in the request object
     req.user = user;
-    console.log(req.user);
+    // console.log(req.user);
 
     next();
   } catch (error) {

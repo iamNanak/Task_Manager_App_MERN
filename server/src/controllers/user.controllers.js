@@ -83,7 +83,9 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 
   const token = generateToken(userExists._id);
-  console.log(token);
+  // console.log(token);
+  // const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  // console.log("decoded :", decoded.id);
 
   const options = {
     path: "/",
